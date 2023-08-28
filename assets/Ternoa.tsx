@@ -4,7 +4,7 @@ interface LogoProps {
 	className?: string;
 }
 
-const TernoaLogo: React.FC<LogoProps> = ({ className }) => (
+const TernoaIcon: React.FC<LogoProps> = ({ className }) => (
 	<svg
 		className={className}
 		width="30"
@@ -21,4 +21,4 @@ const TernoaLogo: React.FC<LogoProps> = ({ className }) => (
 	</svg>
 );
 
-export default TernoaLogo;
+export default TernoaIcon;

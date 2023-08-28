@@ -1,5 +1,6 @@
 "use client";
-import TernoaIcon from "@/assets/ternoaLogo";
+import Polkadot from "@/assets/Polkadot";
+import TernoaIcon from "@/assets/Ternoa";
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
@@ -10,7 +11,10 @@ const Header = () => {
           <TernoaIcon />
           <div className="px-2">Ternoa</div>
         </div>
-        <Button variant={"outline"} size={"sm"}>Connect</Button>
+        <Button variant={"outline"} size={"sm"}>
+          <Polkadot className="px-1" />
+          Connect
+        </Button>
       </div>
     </nav>
   );
