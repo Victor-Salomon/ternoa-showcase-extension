@@ -3,7 +3,6 @@ import Connection from "../Modals/Connection";
 
 const Header = () => {
   return (
-    <>
       <nav className="container mx-auto">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center text-xl font-bold">
@@ -13,7 +12,6 @@ const Header = () => {
           <Connection />
         </div>
       </nav>
-    </>
   );
 };
 
