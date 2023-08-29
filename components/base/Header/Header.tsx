@@ -1,10 +1,7 @@
-"use client";
 import TernoaIcon from "@/assets/providers/Ternoa";
-import { useState } from "react";
 import Connection from "../Modals/Connection";
 
 const Header = () => {
-  const [openPolkadot, setOpenPolkadot] = useState<boolean>(false);
   return (
     <>
       <nav className="container mx-auto">
