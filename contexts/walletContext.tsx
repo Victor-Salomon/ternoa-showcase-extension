@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useState } from "react";
 import {
-  WalletContextProviderProps,
+  ContextProviderProps,
   WalletContextType,
   UserWalletType,
 } from "./types";
@@ -10,7 +10,7 @@ const WalletContext = createContext<WalletContextType | null>(null);
 
 export function WalletContextProvider({
   children,
-}: WalletContextProviderProps) {
+}: ContextProviderProps) {
   const [userWallet, setUserWallet] = useState<UserWalletType>({
     address: "",
     walletName: "",

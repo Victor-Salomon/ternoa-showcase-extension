@@ -16,7 +16,7 @@ import {
 import { useEffect, useState } from "react";
 import { getAccounts } from "@/lib/polkadot";
 import { middleEllipsis } from "@/lib/utils";
-import { useWalletContext } from "@/contexts/wallet-context";
+import { useWalletContext } from "@/contexts/walletContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Identicon = dynamic(() => import("@polkadot/react-identicon"), {
