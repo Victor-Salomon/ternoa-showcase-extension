@@ -1,10 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
 import { FileUploader } from "react-drag-drop-files";
 import { useForm } from "react-hook-form";
-import { File } from "ternoa-js";
-import * as z from "zod";
+import {
+  File,
+  TernoaIPFS,
+  WaitUntil,
+  createNft,
+  getKeyringFromSeed,
+  initializeApi,
+  isApiConnected,
+} from "ternoa-js";
 
 import { FormSchemaType, formSchema } from "./zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,9 +29,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import TernoaIcon from "@/assets/providers/Ternoa";
-import { X } from "lucide-react";
+import { CHAIN_WSS } from "@/lib/constants";
+import { useWalletContext } from "@/contexts/walletContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Connection from "../../Modals/Connection";
 
 export default function BasicNftForm() {
+  const { userWallet } = useWalletContext();
   const [nftFile, setNftFile] = useState<File | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const fileTypes = ["JPG", "JPEG", "PNG", "jpg", "jpeg", "png"];
@@ -42,10 +60,64 @@ export default function BasicNftForm() {
     setNftFile(file);
   };
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log({ ...values, nftFile });
-  }
+  const handleNftForm = async (values: FormSchemaType) => {
+    if (!values.offchainData && !nftFile)
+      throw new Error(
+        "OFFCHAIN_META_DATA_ERROR: Both File & offchain are unavailable."
+      );
+    const formatedroyalty = values.royalty ? Number(values.royalty) : 0;
+    const formatedCollection = values.collection
+      ? Number(values.collection)
+      : undefined;
+    if (!isApiConnected()) {
+      console.log("Ternoa API new initialization");
+      await initializeApi(CHAIN_WSS);
+    }
+
+    const keyring = await getKeyringFromSeed(
+      "broccoli tornado verb crane mandate wise gap shop mad quarter jar snake"
+    );
+
+    if (nftFile) {
+      try {
+        const IPFS_URL = "https://ipfs-dev.trnnfr.com";
+        const IPFS_API_KEY = "98791fae-d947-450b-a457-12ecf5d9b858";
+        const ipfsClient = new TernoaIPFS(new URL(IPFS_URL), IPFS_API_KEY);
+        const nftMetadata = {
+          title: "NFT TITLE",
+          description: "NFT DESCRIPTION",
+        };
+        const { Hash } = await ipfsClient.storeNFT(nftFile, nftMetadata);
+        const nftEvent = await createNft(
+          Hash,
+          formatedroyalty,
+          formatedCollection,
+          values.soulbond,
+          keyring,
+          WaitUntil.BlockInclusion
+        );
+        console.log(nftEvent);
+        return nftEvent;
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    if (!values.offchainData)
+      throw new Error(
+        "OFFCHAIN_META_DATA_ERROR: Missing offchain data from form."
+      );
+    const { offchainData, soulbond } = values;
+
+    const nftEvent = await createNft(
+      offchainData,
+      formatedroyalty,
+      formatedCollection,
+      soulbond,
+      keyring,
+      WaitUntil.BlockInclusion
+    );
+    console.log(nftEvent);
+  };
 
   return (
     <>
@@ -83,7 +155,7 @@ export default function BasicNftForm() {
         </div>
       )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={form.handleSubmit(handleNftForm)} className="space-y-8">
           <FormField
             control={form.control}
             name="offchainData"
@@ -95,7 +167,7 @@ export default function BasicNftForm() {
                     disabled={nftFile ? true : false}
                     placeholder={
                       nftFile
-                        ? `Offchain data use be the ${nftFile.name} file IPFS hash`
+                        ? `Offchain data use the ${nftFile.name} file.`
                         : "Enter the NFT offchain data"
                     }
                     {...field}
@@ -127,30 +199,65 @@ export default function BasicNftForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="collection"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Collection</FormLabel>
-                <FormControl className="font-light">
-                  <Input placeholder="Select a collection id" {...field} />
-                </FormControl>
-                <FormDescription className="font-light">
-                  Collection ID represents the collection to which this NFT will
-                  belong.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {userWallet.address && userWallet.collections.length ? (
+            <FormField
+              control={form.control}
+              name="collection"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Collection</FormLabel>
+                  <Select onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="font-light">
+                        <SelectValue placeholder="Select a collection id or keep it empty" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {userWallet.collections.map((c, idx) => (
+                        <SelectItem key={idx} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                    <FormDescription className="font-light">
+                      Collection ID represents the collection to which this NFT
+                      will belong.
+                    </FormDescription>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ) : (
+            <FormField
+              control={form.control}
+              name="collection"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Collection</FormLabel>
+                  <FormControl className="font-light">
+                    <Input
+                      placeholder="Add a collection id or keep it empty"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription className="font-light">
+                    Collection ID represents the collection to which this NFT
+                    will belong.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
           <FormField
             control={form.control}
             name="soulbond"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                 <div className="space-y-0.5">
-                  <FormLabel className="text-base">
+                  <FormLabel className="text-base text-sm font-medium ">
                     Is it a soulbond NFT?
                   </FormLabel>
                   <FormDescription className="font-light w-9/12">
@@ -167,7 +274,11 @@ export default function BasicNftForm() {
               </FormItem>
             )}
           />
-          <Button type="submit">Submit</Button>
+          {userWallet.address ? (
+            <Button type="submit">Submit</Button>
+          ) : (
+            <Connection />
+          )}
         </form>
       </Form>
     </>

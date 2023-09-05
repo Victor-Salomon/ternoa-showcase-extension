@@ -3,7 +3,7 @@ import Connection from "../Modals/Connection";
 
 const Header = () => {
   return (
-      <nav className="container fixed top-0 left-0 right-0 backdrop-blur-md">
+      <nav className="container fixed top-0 left-0 right-0 backdrop-blur-md z-50">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center text-xl font-bold">
             <TernoaIcon />

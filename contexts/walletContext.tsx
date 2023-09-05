@@ -15,6 +15,7 @@ export function WalletContextProvider({
     address: "",
     walletName: "",
     isConnected: false,
+    collections:[]
   });
 
   return (
