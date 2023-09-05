@@ -8,6 +8,7 @@ export type UserWalletType = {
   address: string;
   walletName: string;
   isConnected: boolean;
+  collections:string[]
 };
 
 export type WalletContextType = {

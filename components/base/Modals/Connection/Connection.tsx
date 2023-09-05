@@ -18,6 +18,7 @@ import { getAccounts } from "@/lib/polkadot";
 import { middleEllipsis } from "@/lib/utils";
 import { useWalletContext } from "@/contexts/walletContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getCollections } from "@/lib/indexer";
 
 const Identicon = dynamic(() => import("@polkadot/react-identicon"), {
   ssr: false,
@@ -29,11 +30,17 @@ const Connection = () => {
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const handleAccountLogin = (account: InjectedAccountWithMeta) => {
+  const handleAccountLogin = async (account: InjectedAccountWithMeta) => {
+    const collectionIds = await getCollections(account.address);
+    let formattedCollections: string[] = [];
+    collectionIds.map((c) => {
+      formattedCollections.push(c.collectionId);
+    });
     setUserWallet({
       address: account.address,
       walletName: account.meta.name ?? "POLKADOT_ACCOUNT",
       isConnected: true,
+      collections: formattedCollections,
     });
   };
 
@@ -42,6 +49,7 @@ const Connection = () => {
       address: "",
       walletName: "",
       isConnected: false,
+      collections: [],
     });
   };
 
@@ -89,7 +97,9 @@ const Connection = () => {
                 theme="polkadot"
                 className="pe-1"
               />
-              <span className="from-purple-500 via-pink-500 to-blue-500 bg-gradient-to-r bg-clip-text text-transparent font-light">{middleEllipsis(userWallet.address, 15)}</span>
+              <span className="from-purple-500 via-pink-500 to-blue-500 bg-gradient-to-r bg-clip-text text-transparent font-light">
+                {middleEllipsis(userWallet.address, 15)}
+              </span>
             </Button>
           )}
         </DialogTrigger>
@@ -122,7 +132,10 @@ const Connection = () => {
           </DialogHeader>
           {userWallet.isConnected && (
             <DialogDescription>
-              Connected account: <span className="from-purple-600 via-pink-600 to-blue-600 bg-gradient-to-r bg-clip-text text-transparent">{middleEllipsis(userWallet.address, 20)}</span>
+              Connected account:{" "}
+              <span className="from-purple-600 via-pink-600 to-blue-600 bg-gradient-to-r bg-clip-text text-transparent">
+                {middleEllipsis(userWallet.address, 20)}
+              </span>
             </DialogDescription>
           )}
           {error ? (
