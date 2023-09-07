@@ -40,9 +40,12 @@ import {
 } from "@/components/ui/select";
 import Connection from "../../Modals/Connection";
 import { Textarea } from "@/components/ui/textarea";
+import { ToastAction } from "@/components/ui/toast";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function BasicNftForm() {
   const { userWallet } = useWalletContext();
+  const { toast } = useToast();
   const [nftFile, setNftFile] = useState<File | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const fileTypes = ["JPG", "JPEG", "PNG", "jpg", "jpeg", "png"];
@@ -63,10 +66,44 @@ export default function BasicNftForm() {
     setNftFile(file);
   };
 
+  const triggerToast = (
+    title: string,
+    description: string,
+    className: string,
+    actionClassName?: string,
+    actionOnClick?: void,
+    actionText?: string
+  ) => {
+    toast({
+      className,
+      title,
+      description,
+      action: actionText ? (
+        <ToastAction
+          altText={actionText ? actionText : "ToastAction"}
+          onClick={() => actionOnClick}
+          className={actionClassName}
+        >
+          {actionText}
+        </ToastAction>
+      ) : (
+        <div></div>
+      ),
+    });
+  };
+
   const handleNftForm = async (values: FormSchemaType) => {
     if (!values.offchainData && !nftFile) {
       setError(
         "OFFCHAIN_META_DATA_ERROR: File or offchain missing. Please upload a file or add an offchain data in the area."
+      );
+      triggerToast(
+        "OFFCHAIN_META_DATA_ERROR",
+        "File or offchain missing. Please upload a file or add an offchain data in the area.",
+        "bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 text-white",
+        "bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base text-sm",
+        setError(undefined),
+        "Try again"
       );
       return;
     }
@@ -94,7 +131,7 @@ export default function BasicNftForm() {
             : `NFT created by ${userWallet.address}`,
           description: values.metadataDescription
             ? values.metadataDescription
-            : `Coming from the Ternoa dAPp showcase.`,
+            : `Coming from the Ternoa dApp showcase.`,
         };
         const { Hash } = await ipfsClient.storeNFT(nftFile, nftMetadata);
         const nftEvent = await createNft(
@@ -163,13 +200,13 @@ export default function BasicNftForm() {
           />
         </p>
       )}
-      {error && (
+      {/* {error && (
         <div className="rounded-md bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 py-4 w-2/3 mt-2 text-center mx-auto">
           <div className="m-4 bg-clip-text bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base text-sm">
             {error}
           </div>
         </div>
-      )}
+      )} */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleNftForm)} className="space-y-8">
           {nftFile && (

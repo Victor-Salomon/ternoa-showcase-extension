@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import SidebarNav from "@/components/base/SidebarNav";
 import Network from "@/components/base/Network";
 import { NetworkContextProvider } from "@/contexts/networkContext";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -72,6 +73,7 @@ export default function RootLayout({
                 </div>
               </div>
             </main>
+            <Toaster />
           </WalletContextProvider>
         </NetworkContextProvider>
       </body>
