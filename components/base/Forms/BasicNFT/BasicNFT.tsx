@@ -39,6 +39,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Connection from "../../Modals/Connection";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function BasicNftForm() {
   const { userWallet } = useWalletContext();
@@ -52,6 +53,8 @@ export default function BasicNftForm() {
       royalty: "0",
       collection: "",
       soulbond: false,
+      metadataTitle: "",
+      metadataDescription: "",
     },
   });
 
@@ -61,10 +64,12 @@ export default function BasicNftForm() {
   };
 
   const handleNftForm = async (values: FormSchemaType) => {
-    if (!values.offchainData && !nftFile)
-      throw new Error(
-        "OFFCHAIN_META_DATA_ERROR: Both File & offchain are unavailable."
+    if (!values.offchainData && !nftFile) {
+      setError(
+        "OFFCHAIN_META_DATA_ERROR: File or offchain missing. Please upload a file or add an offchain data in the area."
       );
+      return;
+    }
     const formatedroyalty = values.royalty ? Number(values.royalty) : 0;
     const formatedCollection = values.collection
       ? Number(values.collection)
@@ -84,8 +89,12 @@ export default function BasicNftForm() {
         const IPFS_API_KEY = "98791fae-d947-450b-a457-12ecf5d9b858";
         const ipfsClient = new TernoaIPFS(new URL(IPFS_URL), IPFS_API_KEY);
         const nftMetadata = {
-          title: "NFT TITLE",
-          description: "NFT DESCRIPTION",
+          title: values.metadataTitle
+            ? values.metadataTitle
+            : `NFT created by ${userWallet.address}`,
+          description: values.metadataDescription
+            ? values.metadataDescription
+            : `Coming from the Ternoa dAPp showcase.`,
         };
         const { Hash } = await ipfsClient.storeNFT(nftFile, nftMetadata);
         const nftEvent = await createNft(
@@ -102,21 +111,24 @@ export default function BasicNftForm() {
         console.log(error);
       }
     }
-    if (!values.offchainData)
-      throw new Error(
-        "OFFCHAIN_META_DATA_ERROR: Missing offchain data from form."
-      );
+    if (!values.offchainData) {
+      setError("OFFCHAIN_META_DATA_ERROR: Missing offchain data from form.");
+      return;
+    }
     const { offchainData, soulbond } = values;
-
-    const nftEvent = await createNft(
-      offchainData,
-      formatedroyalty,
-      formatedCollection,
-      soulbond,
-      keyring,
-      WaitUntil.BlockInclusion
-    );
-    console.log(nftEvent);
+    try {
+      const nftEvent = await createNft(
+        offchainData,
+        formatedroyalty,
+        formatedCollection,
+        soulbond,
+        keyring,
+        WaitUntil.BlockInclusion
+      );
+      console.log(nftEvent);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -131,9 +143,13 @@ export default function BasicNftForm() {
         >
           <div className="flex flex-col items-center border rounded-lg p-8 mx-auto bg-white cursor-pointer">
             <TernoaIcon />
-            <p className="font-light text-sm py-2">
-              Upload or drop a file right here
-            </p>
+            {nftFile ? (
+              <p className="font-light text-sm py-2">Upload a new file here.</p>
+            ) : (
+              <p className="font-light text-sm py-2">
+                Upload or drop a file right here
+              </p>
+            )}
           </div>
         </FileUploader>
       </div>
@@ -156,6 +172,41 @@ export default function BasicNftForm() {
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleNftForm)} className="space-y-8">
+          {nftFile && (
+            <>
+              <FormField
+                control={form.control}
+                name="metadataTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NFT Metadata Title</FormLabel>
+                    <FormControl className="font-light">
+                      <Input placeholder="Add a title to your NFT" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="metadataDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NFT Metadata Description</FormLabel>
+                    <FormControl className="font-light">
+                      <Textarea
+                        placeholder="Add a description to your NFT"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
           <FormField
             control={form.control}
             name="offchainData"
@@ -173,10 +224,19 @@ export default function BasicNftForm() {
                     {...field}
                   />
                 </FormControl>
-                <FormDescription className="font-light">
-                  The offchain data is the only required field related to the
-                  NFT metadata. It can be an IPFS Hash, an URL or plain text.
-                </FormDescription>
+                {!nftFile ? (
+                  <FormDescription className="font-light">
+                    The offchain data is the only required field related to the
+                    NFT metadata. Enter manually the offchain data you want or
+                    upload a file.
+                  </FormDescription>
+                ) : (
+                  <FormDescription className="font-light">
+                    The offchain data is the only required field related to the
+                    NFT metadata. We will upload your file on IPFS and use the
+                    file hash as the NFT offchain metadata.
+                  </FormDescription>
+                )}
                 <FormMessage />
               </FormItem>
             )}
