@@ -6,10 +6,8 @@ import { FileUploader } from "react-drag-drop-files";
 import { useForm } from "react-hook-form";
 import {
   File,
+  NFTCreatedEvent,
   TernoaIPFS,
-  WaitUntil,
-  createNft,
-  getKeyringFromSeed,
   initializeApi,
   isApiConnected,
 } from "ternoa-js";
@@ -40,15 +38,39 @@ import {
 } from "@/components/ui/select";
 import Connection from "../../Modals/Connection";
 import { Textarea } from "@/components/ui/textarea";
-import { ToastAction } from "@/components/ui/toast";
-import { useToast } from "@/components/ui/use-toast";
+import { mintNFT } from "@/lib/ternoa";
+// import { middleEllipsis } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { middleEllipsis } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 export default function BasicNftForm() {
   const { userWallet } = useWalletContext();
-  const { toast } = useToast();
   const [nftFile, setNftFile] = useState<File | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [isNftLoading, setIsNftLoading] = useState<boolean>(false);
+  const [nftLoadingState, setNftLoadingState] = useState<string | undefined>(
+    undefined
+  );
+  const [nftData, setNftData] = useState<NFTCreatedEvent | undefined>(
+    undefined
+  );
+  const [progress, setProgress] = useState<number>(15);
   const fileTypes = ["JPG", "JPEG", "PNG", "jpg", "jpeg", "png"];
+
+  const cleanStates = () => {
+    setIsNftLoading(false);
+    setNftLoadingState(undefined);
+    setNftFile(undefined);
+  };
+
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,44 +88,20 @@ export default function BasicNftForm() {
     setNftFile(file);
   };
 
-  const triggerToast = (
-    title: string,
-    description: string,
-    className: string,
-    actionClassName?: string,
-    actionOnClick?: void,
-    actionText?: string
-  ) => {
-    toast({
-      className,
-      title,
-      description,
-      action: actionText ? (
-        <ToastAction
-          altText={actionText ? actionText : "ToastAction"}
-          onClick={() => actionOnClick}
-          className={actionClassName}
-        >
-          {actionText}
-        </ToastAction>
-      ) : (
-        <div></div>
-      ),
-    });
-  };
+  // const setProgressValue = (value:number) => {
+  //   if (value < 90) return value + 20
+  //   return value
+  // }
 
   const handleNftForm = async (values: FormSchemaType) => {
+    setError(undefined);
+    setIsNftLoading(true);
+    setNftLoadingState(`Verifiying & formatting metadata`);
+    setProgress(30);
     if (!values.offchainData && !nftFile) {
+      cleanStates();
       setError(
-        "OFFCHAIN_META_DATA_ERROR: File or offchain missing. Please upload a file or add an offchain data in the area."
-      );
-      triggerToast(
-        "OFFCHAIN_META_DATA_ERROR",
-        "File or offchain missing. Please upload a file or add an offchain data in the area.",
-        "bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 text-white",
-        "bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base text-sm",
-        setError(undefined),
-        "Try again"
+        "OFFCHAIN_META_DATA_ERROR: File or offchain missing. Please upload a file or add an offchain data in the dedicated area."
       );
       return;
     }
@@ -116,11 +114,12 @@ export default function BasicNftForm() {
       await initializeApi(CHAIN_WSS);
     }
 
-    const keyring = await getKeyringFromSeed(
-      "broccoli tornado verb crane mandate wise gap shop mad quarter jar snake"
-    );
-
+    // Proceed with file
     if (nftFile) {
+      setNftLoadingState(
+        `Uploading metadata & ${nftFile.name} file to IPFS cluster.`
+      );
+      setProgress(55);
       try {
         const IPFS_URL = "https://ipfs-dev.trnnfr.com";
         const IPFS_API_KEY = "98791fae-d947-450b-a457-12ecf5d9b858";
@@ -134,37 +133,63 @@ export default function BasicNftForm() {
             : `Coming from the Ternoa dApp showcase.`,
         };
         const { Hash } = await ipfsClient.storeNFT(nftFile, nftMetadata);
-        const nftEvent = await createNft(
+        setNftLoadingState(
+          `NFT being minted on the Ternoa blockchain: please sign the transaction.`
+        );
+        setProgress(75);
+        const nftEvent = await mintNFT(
+          userWallet.address,
           Hash,
           formatedroyalty,
           formatedCollection,
-          values.soulbond,
-          keyring,
-          WaitUntil.BlockInclusion
+          values.soulbond
         );
-        console.log(nftEvent);
-        return nftEvent;
+        setNftData(nftEvent);
+        setIsNftLoading(false);
+        return;
       } catch (error) {
-        console.log(error);
+        const errorDescription =
+          error instanceof Error ? error.message : JSON.stringify(error);
+        setError(errorDescription);
+        setIsNftLoading(false);
+        return;
+      } finally {
+        cleanStates();
+        form.reset();
       }
     }
+
+    // Proceed with string offchain data
     if (!values.offchainData) {
+      cleanStates();
       setError("OFFCHAIN_META_DATA_ERROR: Missing offchain data from form.");
       return;
     }
-    const { offchainData, soulbond } = values;
     try {
-      const nftEvent = await createNft(
-        offchainData,
+      setNftLoadingState(
+        `NFT being minted on the Ternoa blockchain: please sign the transaction.`
+      );
+      setProgress(65);
+      const nftEvent = await mintNFT(
+        userWallet.address,
+        values.offchainData,
         formatedroyalty,
         formatedCollection,
-        soulbond,
-        keyring,
-        WaitUntil.BlockInclusion
+        values.soulbond
       );
-      console.log(nftEvent);
+      setNftData(nftEvent);
+      setIsNftLoading(false);
+      return;
     } catch (error) {
-      console.log(error);
+      const errorDescription =
+        error instanceof Error ? error.message : JSON.stringify(error);
+      setError(errorDescription);
+      setIsNftLoading(false);
+      setNftLoadingState(undefined);
+      return;
+    } finally {
+      cleanStates();
+      form.reset();
     }
   };
 
@@ -200,13 +225,6 @@ export default function BasicNftForm() {
           />
         </p>
       )}
-      {/* {error && (
-        <div className="rounded-md bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 py-4 w-2/3 mt-2 text-center mx-auto">
-          <div className="m-4 bg-clip-text bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base text-sm">
-            {error}
-          </div>
-        </div>
-      )} */}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleNftForm)} className="space-y-8">
           {nftFile && (
@@ -372,7 +390,62 @@ export default function BasicNftForm() {
             )}
           />
           {userWallet.address ? (
-            <Button type="submit">Submit</Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant={"outline"} type="submit">
+                  Submit
+                </Button>
+              </DialogTrigger>
+              {error && (
+                <DialogContent className="sm:max-w-[425px] px-2 sm:px-6 rounded-md bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 py-4 w-2/3 mt-2 text-center mx-auto text-white">
+                  <DialogHeader>
+                    <DialogTitle className="p-4 bg-clip-text bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-center">
+                      Something went wrong
+                    </DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription className="pb-6 bg-clip-text bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base text-sm">
+                    {error}
+                  </DialogDescription>
+                </DialogContent>
+              )}
+              {isNftLoading && (
+                <DialogContent className="sm:max-w-[425px] px-2 sm:px-6 rounded-md bg-gradient-to-tr from-violet-500 to-orange-300 py-4 w-2/3 mt-2 text-center mx-auto text-white">
+                  <DialogHeader>
+                    <DialogTitle className="p-4 text-white text-center">
+                      NFT Mint processing
+                    </DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription className="pb-6 text-white text-center text-sm">
+                    {nftLoadingState}
+                  </DialogDescription>
+                  <Progress value={progress} className="w-[50%] mx-auto"/>
+                </DialogContent>
+              )}
+              {nftData && (
+                <DialogContent className="sm:max-w-[425px] px-2 sm:px-6 rounded-md bg-gradient-to-r from-teal-200 to-teal-500 text-white py-4 w-2/3 mt-2 text-center mx-auto text-white">
+                  <DialogHeader>
+                    <DialogTitle className="p-4 bg-clip-text bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-900 to-yellow-300 text-transparent text-center">
+                      {`NFT ID: ${nftData.nftId} SUCCESSFULLY CREATED 🌶️`}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <DialogDescription className="pb-6 text-white text-base text-sm space-y-4">
+                    <span className="font-bold">Congratulation:</span>{" "}
+                    {middleEllipsis(nftData.owner, 15)}. You just created an NFT
+                    on the Ternoa Blockchain.
+                    <span>
+                      Find the IPFS hash{" "}
+                      <a
+                        className="font-bold cursor-pointer bg-clip-text bg-gradient-to-r from-blue-700 via-blue-800 to-gray-900 text-transparent"
+                        href={`https://ipfs-mainnet.trnnfr.com/ipfs/${nftData.offchainData}`}
+                        target="blank"
+                      >
+                        here.
+                      </a>
+                    </span>
+                  </DialogDescription>
+                </DialogContent>
+              )}
+            </Dialog>
           ) : (
             <Connection />
           )}
