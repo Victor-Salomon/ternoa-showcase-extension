@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { FileUploader } from "react-drag-drop-files";
 import { useForm } from "react-hook-form";
 import {
+  BlockInfo,
   File,
   NFTCreatedEvent,
   TernoaIPFS,
@@ -38,7 +39,7 @@ import {
 } from "@/components/ui/select";
 import Connection from "../../Modals/Connection";
 import { Textarea } from "@/components/ui/textarea";
-import { mintNFT } from "@/lib/ternoa";
+import { getExplorerLink, mintNFT } from "@/lib/ternoa";
 // import { middleEllipsis } from "@/lib/utils";
 import {
   Dialog,
@@ -62,6 +63,7 @@ export default function BasicNftForm() {
   const [nftData, setNftData] = useState<NFTCreatedEvent | undefined>(
     undefined
   );
+  const [blockData, setBlockData] = useState<BlockInfo | undefined>(undefined);
   const [progress, setProgress] = useState<number>(15);
   const fileTypes = ["JPG", "JPEG", "PNG", "jpg", "jpeg", "png"];
 
@@ -87,11 +89,6 @@ export default function BasicNftForm() {
     setError(undefined);
     setNftFile(file);
   };
-
-  // const setProgressValue = (value:number) => {
-  //   if (value < 90) return value + 20
-  //   return value
-  // }
 
   const handleNftForm = async (values: FormSchemaType) => {
     setError(undefined);
@@ -137,14 +134,15 @@ export default function BasicNftForm() {
           `NFT being minted on the Ternoa blockchain: please sign the transaction.`
         );
         setProgress(75);
-        const nftEvent = await mintNFT(
+        const nftData = await mintNFT(
           userWallet.address,
           Hash,
           formatedroyalty,
           formatedCollection,
           values.soulbond
         );
-        setNftData(nftEvent);
+        setNftData(nftData.nftEvent);
+        setBlockData(nftData.blockInfo);
         setIsNftLoading(false);
         return;
       } catch (error) {
@@ -170,14 +168,15 @@ export default function BasicNftForm() {
         `NFT being minted on the Ternoa blockchain: please sign the transaction.`
       );
       setProgress(65);
-      const nftEvent = await mintNFT(
+      const nftData = await mintNFT(
         userWallet.address,
         values.offchainData,
         formatedroyalty,
         formatedCollection,
         values.soulbond
       );
-      setNftData(nftEvent);
+      setNftData(nftData.nftEvent);
+      setBlockData(nftData.blockInfo);
       setIsNftLoading(false);
       return;
     } catch (error) {
@@ -415,33 +414,55 @@ export default function BasicNftForm() {
                       NFT Mint processing
                     </DialogTitle>
                   </DialogHeader>
-                  <DialogDescription className="pb-6 text-white text-center text-sm">
+                  <DialogDescription className="text-white text-center text-sm">
                     {nftLoadingState}
                   </DialogDescription>
-                  <Progress value={progress} className="w-[50%] mx-auto"/>
+                  <Progress value={progress} className="w-[50%] mx-auto my-2" />
                 </DialogContent>
               )}
               {nftData && (
                 <DialogContent className="sm:max-w-[425px] px-2 sm:px-6 rounded-md bg-gradient-to-r from-teal-200 to-teal-500 text-white py-4 w-2/3 mt-2 text-center mx-auto text-white">
                   <DialogHeader>
                     <DialogTitle className="p-4 bg-clip-text bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-900 to-yellow-300 text-transparent text-center">
-                      {`NFT ID: ${nftData.nftId} SUCCESSFULLY CREATED 🌶️`}
+                      NFT SUCCESSFULLY CREATED 🌶️
                     </DialogTitle>
+                    <TernoaIcon className="mx-auto" />
                   </DialogHeader>
-                  <DialogDescription className="pb-6 text-white text-base text-sm space-y-4">
-                    <span className="font-bold">Congratulation:</span>{" "}
-                    {middleEllipsis(nftData.owner, 15)}. You just created an NFT
-                    on the Ternoa Blockchain.
-                    <span>
+                  <DialogDescription className="pb-6 text-white text-base text-sm space-y-4 mx-3">
+                    <span className="">
+                    <span className="font-bold me-0.5">Congratulation:</span>
+                      {middleEllipsis(nftData.owner, 15)} just created{" "}
+                      <span className="font-bold bg-clip-text bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-900 to-yellow-300 text-transparent mx-1">
+                        NFT id {nftData.nftId}
+                      </span>
+                      on the Ternoa Blockchain.{" "}
+                    </span>
+
+                    <span className="m-0.5">
                       Find the IPFS hash{" "}
                       <a
-                        className="font-bold cursor-pointer bg-clip-text bg-gradient-to-r from-blue-700 via-blue-800 to-gray-900 text-transparent"
+                        className="font-bold cursor-pointer"
                         href={`https://ipfs-mainnet.trnnfr.com/ipfs/${nftData.offchainData}`}
                         target="blank"
                       >
                         here.
                       </a>
                     </span>
+
+                    {blockData && (
+                      <span className="m-0.5">
+                        See your transaction
+                        <a
+                          className="font-bold cursor-pointer ps-1"
+                          href={getExplorerLink(
+                            Number(blockData.block?.header.number)
+                          )}
+                          target="blank"
+                        >
+                          here.
+                        </a>
+                      </span>
+                    )}
                   </DialogDescription>
                 </DialogContent>
               )}

@@ -9,6 +9,7 @@ import {
   query,
   NFTCreatedEvent,
   createNftTx,
+  getApiEndpoint,
 } from "ternoa-js";
 import type { Signer as InjectedSigner } from "@polkadot/api/types";
 
@@ -69,14 +70,15 @@ export const mintNFT = async (
       formatedCollection,
       soulbond
     );
-    const { events } = await genericSign(tx, address);
+    const { events, blockInfo } = await genericSign(tx, address);
     const { isTxSuccess, failedEvent } = checkTransactionSuccess(events);
     if (!isTxSuccess && failedEvent) {
       throw new Error(
         `${Errors.EXTRINSIC_FAILED}: ${failedEvent.errorType} - ${failedEvent.details}`
       );
     }
-    return events.findEventOrThrow(NFTCreatedEvent);
+    const nftEvent = events.findEventOrThrow(NFTCreatedEvent)
+    return {nftEvent, blockInfo};
   } catch (error) {
     const errorDescription = `NFT_MINT_ERROR: ${
       error instanceof Error ? error.message : JSON.stringify(error)
@@ -84,3 +86,11 @@ export const mintNFT = async (
     throw new Error(errorDescription)
   }
 };
+
+export const getExplorerLink = (block: number) => {
+  const wssEndpoint = getApiEndpoint()
+  if (!wssEndpoint) throw new Error("TERNOA_API_NOT_CONNECTED")
+  const subdomain = wssEndpoint.includes('alphanet') ? 'explorer-alphanet.' : 'explorer.'
+  const extension = wssEndpoint.includes('alphanet') ? '.dev' : '.com'
+  return `https://${subdomain}ternoa${extension}/block/${block}` 
+}
