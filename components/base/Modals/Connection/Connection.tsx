@@ -140,7 +140,7 @@ const Connection = () => {
           )}
           {error ? (
             <div className="flex flex-col justify-center items-center mt-4 rounded-md bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 py-4">
-              <div className="m-4 bg-clip-text bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base">
+              <div className="m-4 bg-gradient-to-r from-red-300 to-pink-600 bg-clip-text text-transparent text-base">
                 {error}
               </div>
             </div>
@@ -186,7 +186,11 @@ const Connection = () => {
           )}
           {userWallet.isConnected && (
             <DialogFooter>
-              <Button className="mx-2" onClick={() => handleAccountLogout()}>
+              <Button
+                className="mx-2"
+                variant={"outline"}
+                onClick={() => handleAccountLogout()}
+              >
                 Logout
               </Button>
             </DialogFooter>
