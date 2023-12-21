@@ -8,6 +8,7 @@ import SidebarNav from "@/components/base/SidebarNav";
 import Network from "@/components/base/Network";
 import { NetworkContextProvider } from "@/contexts/networkContext";
 import { Toaster } from "@/components/ui/toaster";
+import Footer from "@/components/base/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,7 +39,7 @@ export default function RootLayout({
         <NetworkContextProvider>
           <WalletContextProvider>
             <Header />
-            <main className="container mx-auto my-24">
+            <main className="container mx-auto mt-24">
               <div className="border my-10 rounded-md space-y-6 p-4 md:p-10 md:pb-16">
                 <div className="space-y-0.5">
                   <h2 className="text-2xl font-bold mb-4">
@@ -73,6 +74,7 @@ export default function RootLayout({
                 </div>
               </div>
             </main>
+            <Footer />
             <Toaster />
           </WalletContextProvider>
         </NetworkContextProvider>
