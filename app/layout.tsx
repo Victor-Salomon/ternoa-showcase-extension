@@ -70,7 +70,7 @@ export default function RootLayout({
                   <aside className="lg:mx-4 lg:w-1/6">
                     <SidebarNav items={sidebarNavItems} />
                   </aside>
-                  <div className="flex-1 lg:max-w-2xl">{children}</div>
+                  <div className="flex-1">{children}</div>
                 </div>
               </div>
             </main>

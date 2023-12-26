@@ -2,7 +2,7 @@ import BasicNftForm from "@/components/base/Forms/BasicNFT/BasicNFT";
 
 export default function Home() {
   return (
-    <div className="space-y-6 border p-6 rounded-md">
+    <div className="lg:max-w-2xl space-y-6 border p-6 rounded-md">
       <div>
         <h3 className="text-lg font-medium">Create a Basic NFT</h3>
         <p className="text-sm text-muted-foreground">

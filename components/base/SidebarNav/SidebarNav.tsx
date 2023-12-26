@@ -4,12 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { buttonVariants } from "@/components/ui/button";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
   items: {
@@ -33,38 +28,21 @@ export default function SidebarNav({
       )}
       {...props}
     >
-      {items.map((item) =>
-        item.title !== "Secret NFT" ? (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              buttonVariants({ variant: "ghost" }),
-              pathname === item.href
-                ? "bg-muted hover:bg-muted border border-transparent"
-                : "hover:bg-transparent border border-transparent hover:border-slate-300",
-              "justify-start"
-            )}
-          >
-            {item.title}
-          </Link>
-        ) : (
-          <Popover key={item.href}>
-            <PopoverTrigger asChild>
-              <Button
-                className={cn(
-                  buttonVariants({ variant: "ghost" }),
-                  "text-black bg-transparent hover:bg-muted hover:bg-transparent border border-transparent hover:border-slate-300",
-                  "justify-start"
-                )}
-              >
-                {item.title}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-4 text-sm">Coming soon... 😮‍💨</PopoverContent>
-          </Popover>
-        )
-      )}
+      {items.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={cn(
+            buttonVariants({ variant: "ghost" }),
+            pathname === item.href
+              ? "bg-muted hover:bg-muted border border-transparent"
+              : "hover:bg-transparent border border-transparent hover:border-slate-300",
+            "justify-start"
+          )}
+        >
+          {item.title}
+        </Link>
+      ))}
     </nav>
   );
 }

@@ -168,40 +168,42 @@ export default function BasicNftForm() {
           <Skeleton className="h-6 w-1/3 bg-muted" />
         </div>
       ) : (
-        <div className="w-3/6 mx-auto bg-gradient-to-r from-indigo-400 to-cyan-400 p-0.5 rounded-lg">
-          <FileUploader
-            handleChange={handleNFTPreviewChange}
-            name="file"
-            type={fileTypes}
-            onTypeError={(err: Error) => console.log(err)}
-            onSizeError={(err: Error) => console.log(err)}
-          >
-            <div className="flex flex-col items-center border rounded-lg p-8 mx-auto bg-white cursor-pointer">
-              <TernoaIcon />
-              {nftFile ? (
-                <p className="font-light text-sm py-2">
-                  Upload a new file here.
-                </p>
-              ) : (
-                <p className="font-light text-sm py-2">
-                  Upload or drop a file right here
-                </p>
-              )}
-            </div>
-          </FileUploader>
+        <div>
+          <div className="w-3/6 mx-auto bg-gradient-to-r from-indigo-400 to-cyan-400 p-0.5 rounded-lg">
+            <FileUploader
+              handleChange={handleNFTPreviewChange}
+              name="file"
+              type={fileTypes}
+              onTypeError={(err: Error) => console.log(err)}
+              onSizeError={(err: Error) => console.log(err)}
+            >
+              <div className="flex flex-col items-center border rounded-lg p-8 mx-auto bg-white cursor-pointer">
+                <TernoaIcon />
+                {nftFile ? (
+                  <p className="font-light text-sm py-2">
+                    Upload a new file here.
+                  </p>
+                ) : (
+                  <p className="font-light text-sm py-2">
+                    Upload or drop a file right here
+                  </p>
+                )}
+              </div>
+            </FileUploader>
+          </div>
+          {nftFile && (
+            <p className="flex items-center justify-center from-purple-500 via-pink-500 to-blue-500 bg-gradient-to-r bg-clip-text text-transparent font-light text-sm">
+              <span className="text-primary me-1">File name: </span>
+              {nftFile.name}
+              <X
+                onClick={() => {
+                  setNftFile(undefined), form.reset();
+                }}
+                className="h-3 w-3 text-black cursor-pointer ms-0.5 mt-0.5"
+              />
+            </p>
+          )}
         </div>
-      )}
-      {nftFile && (
-        <p className="flex items-center justify-center from-purple-500 via-pink-500 to-blue-500 bg-gradient-to-r bg-clip-text text-transparent font-light text-sm">
-          <span className="text-primary me-1">File name: </span>
-          {nftFile.name}
-          <X
-            onClick={() => {
-              setNftFile(undefined), form.reset();
-            }}
-            className="h-3 w-3 text-black cursor-pointer ms-0.5 mt-0.5"
-          />
-        </p>
       )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleNftForm)} className="space-y-8">
@@ -212,7 +214,9 @@ export default function BasicNftForm() {
                 name="metadataTitle"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>NFT Metadata Title <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      NFT Metadata Title <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl className="font-light">
                       <Input placeholder="Add a title to your NFT" {...field} />
                     </FormControl>
@@ -226,7 +230,10 @@ export default function BasicNftForm() {
                 name="metadataDescription"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>NFT Metadata Description <span className="text-red-500">*</span></FormLabel>
+                    <FormLabel>
+                      NFT Metadata Description{" "}
+                      <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl className="font-light">
                       <Textarea
                         placeholder="Add a description to your NFT"
