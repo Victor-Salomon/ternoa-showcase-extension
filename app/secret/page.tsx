@@ -8,7 +8,7 @@ export default function Secret() {
         <h3 className="text-lg font-medium">Create a Secret NFT</h3>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Associate private-content to a NFT that only the owner can access.
+            Associate private-content to an NFT that only the owner can access.
           </p>
           <p className="text-sm text-muted-foreground italic">
             The secret consists of a media that is encrypted using generated PGP

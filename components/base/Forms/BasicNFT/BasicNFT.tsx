@@ -28,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import TernoaIcon from "@/assets/providers/Ternoa";
-import { CHAIN_WSS } from "@/lib/constants";
+import { CHAIN_WSS, IPFS_API_KEY, IPFS_URL } from "@/lib/constants";
 import { useWalletContext } from "@/contexts/walletContext";
 import {
   Select,
@@ -120,8 +120,6 @@ export default function BasicNftForm() {
       `Uploading metadata & ${nftFile.name} file to IPFS cluster.`
     );
     try {
-      const IPFS_URL = "https://ipfs-dev.trnnfr.com";
-      const IPFS_API_KEY = "98791fae-d947-450b-a457-12ecf5d9b858";
       const ipfsClient = new TernoaIPFS(new URL(IPFS_URL), IPFS_API_KEY);
       const nftMetadata = {
         title: values.metadataTitle
@@ -169,7 +167,7 @@ export default function BasicNftForm() {
         </div>
       ) : (
         <div>
-          <div className="w-3/6 mx-auto bg-gradient-to-r from-indigo-400 to-cyan-400 p-0.5 rounded-lg">
+          <div className="w-3/6 mx-auto border p-0.5 rounded-lg">
             <FileUploader
               handleChange={handleNFTPreviewChange}
               name="file"
@@ -177,7 +175,7 @@ export default function BasicNftForm() {
               onTypeError={(err: Error) => console.log(err)}
               onSizeError={(err: Error) => console.log(err)}
             >
-              <div className="flex flex-col items-center border rounded-lg p-8 mx-auto bg-white cursor-pointer">
+              <div className="flex flex-col items-center rounded-lg p-8 mx-auto bg-white cursor-pointer">
                 <TernoaIcon />
                 {nftFile ? (
                   <p className="font-light text-sm py-2">
@@ -377,22 +375,28 @@ export default function BasicNftForm() {
               {nftData && (
                 <DialogContent className="sm:max-w-[425px] px-2 sm:px-6 rounded-md py-4 w-2/3 mt-2 text-center mx-auto">
                   <DialogHeader>
-                    <DialogTitle className="p-4 bg-clip-text bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-900 to-yellow-300 text-transparent text-center">
+                    <DialogTitle className="p-4 text-center">
                       NFT SUCCESSFULLY CREATED
                     </DialogTitle>
                     <TernoaIcon className="mx-auto text-muted-foreground" />
                   </DialogHeader>
-                  <DialogDescription className="pb-6 text-sm space-y-4 mx-3">
-                    <span className="">
-                      <span className="font-bold me-0.5">Congratulation:</span>
-                      {middleEllipsis(nftData.owner, 15)} just created{" "}
+                  <div className="pb-6 text-sm space-y-4 mx-3">
+                    <div className="">
+                    <div className="font-bold me-0.5 text-black my-1">
+                        Congratulation
+                      </div>
+                      NFT id
                       <span className="font-bold bg-clip-text bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-amber-900 to-yellow-300 text-transparent mx-1">
-                        NFT id {nftData.nftId}
+                        {nftData.nftId}
                       </span>
-                      on the Ternoa Blockchain.{" "}
-                    </span>
+                      successfully created by{" "}
+                      <span className="italic">
+                        {middleEllipsis(userWallet.address, 15)}
+                      </span>{" "}
+                      on the Ternoa blockchain.
+                    </div>
 
-                    <span className="m-0.5">
+                    <div className="m-0.5">
                       Find the IPFS hash{" "}
                       <a
                         className="font-bold cursor-pointer"
@@ -401,7 +405,7 @@ export default function BasicNftForm() {
                       >
                         here.
                       </a>
-                    </span>
+                    </div>
 
                     {blockData && (
                       <span className="m-0.5">
@@ -417,7 +421,7 @@ export default function BasicNftForm() {
                         </a>
                       </span>
                     )}
-                  </DialogDescription>
+                  </div>
                 </DialogContent>
               )}
             </Dialog>
