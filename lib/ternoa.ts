@@ -34,7 +34,7 @@ export const getExplorerLink = (block: number) => {
 }
 
 const getSigner = async (address: string): Promise<InjectedSigner> => {
-  const { web3FromAddress } = await import("@polkadot/extension-dapp");
+  const { web3FromAddress } = await import("@polkadot/extension-dapp") as Record<string, any>;;
   const injector = await web3FromAddress(address);
   return injector?.signer;
 };
