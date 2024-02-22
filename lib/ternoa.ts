@@ -20,10 +20,29 @@ import {
   SecretAddedToNFTEvent,
   SecretNftData,
   prepareAndStoreKeyShares,
+  initializeApi,
 } from "ternoa-js";
 import type { Signer as InjectedSigner } from "@polkadot/api/types";
 import { SecretNFTResponse } from "@/components/base/Forms/SecretNFT/types";
 import { Dispatch, SetStateAction } from "react";
+
+
+export const initNetwork = async (network: string) => {
+  switch (network) {
+    case "Betanet":
+      await initializeApi("wss://betanet.ternoa.network");
+      break;
+    case "Mainnet":
+      await initializeApi("wss://mainnet.ternoa.network");
+      break;
+    case "Alphanet":
+      await initializeApi("wss://alphanet.ternoa.com");
+      break;
+    default:
+      await initializeApi("wss://alphanet.ternoa.com");
+      break;
+  }
+};
 
 export const getExplorerLink = (block: number) => {
   const wssEndpoint = getApiEndpoint()

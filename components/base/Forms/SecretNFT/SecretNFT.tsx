@@ -38,15 +38,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { TernoaIPFS, initializeApi, isApiConnected } from "ternoa-js";
-import { CHAIN_WSS, IPFS_API_KEY, IPFS_URL } from "@/lib/constants";
-import { mintSecretNFT } from "@/lib/ternoa";
+import { TernoaIPFS, isApiConnected } from "ternoa-js";
+import { IPFS_API_KEY, IPFS_URL } from "@/lib/constants";
+import { initNetwork, mintSecretNFT } from "@/lib/ternoa";
 import { getPolkadotSigner } from "@/lib/polkadot";
 import { SecretNFTResponse } from "./types";
 import { middleEllipsis } from "@/lib/utils";
+import { useNetworkContext } from "@/contexts/networkContext";
 
 export default function SecretNftForm() {
   const { userWallet } = useWalletContext();
+  const { wss } = useNetworkContext();
   const [nftFile, setNftFile] = useState<File | undefined>(undefined);
   const [secretNftFile, setSecretNftFile] = useState<File | undefined>(
     undefined
@@ -129,7 +131,7 @@ export default function SecretNftForm() {
 
     if (!isApiConnected()) {
       console.log("Ternoa API new initialization");
-      await initializeApi(CHAIN_WSS);
+      await initNetwork(wss)
     }
     try {
       setIsLoading(true);

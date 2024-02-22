@@ -19,6 +19,7 @@ import { middleEllipsis } from "@/lib/utils";
 import { useWalletContext } from "@/contexts/walletContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getCollections } from "@/lib/indexer";
+import { useNetworkContext } from "@/contexts/networkContext";
 
 const Identicon = dynamic(() => import("@polkadot/react-identicon"), {
   ssr: false,
@@ -26,12 +27,13 @@ const Identicon = dynamic(() => import("@polkadot/react-identicon"), {
 
 const Connection = () => {
   const { userWallet, setUserWallet } = useWalletContext();
+  const { network } = useNetworkContext();
   const [isLoadingAccounts, setIsLoadingAccounts] = useState<boolean>(true);
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
 
   const handleAccountLogin = async (account: InjectedAccountWithMeta) => {
-    const collectionIds = await getCollections(account.address);
+    const collectionIds = await getCollections(account.address, network);
     let formattedCollections: string[] = [];
     collectionIds.map((c) => {
       formattedCollections.push(c.collectionId);

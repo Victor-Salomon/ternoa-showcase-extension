@@ -8,7 +8,7 @@ export type UserWalletType = {
   address: string;
   walletName: string;
   isConnected: boolean;
-  collections:string[]
+  collections: string[]
 };
 
 export type WalletContextType = {
@@ -16,9 +16,10 @@ export type WalletContextType = {
   setUserWallet: React.Dispatch<SetStateAction<UserWalletType>>;
 };
 
-export type NetworkType = "Alphanet" | "Mainnet";
+export type NetworkType = "Alphanet" | "Mainnet" | "Betanet";
 
 export type NetworkContextType = {
   network: NetworkType;
   setNetwork: React.Dispatch<SetStateAction<NetworkType>>;
+  wss: string;
 };
