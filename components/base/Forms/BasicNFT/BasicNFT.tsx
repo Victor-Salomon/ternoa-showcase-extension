@@ -9,7 +9,6 @@ import {
   File,
   NFTCreatedEvent,
   TernoaIPFS,
-  initializeApi,
   isApiConnected,
 } from "ternoa-js";
 
@@ -28,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import TernoaIcon from "@/assets/providers/Ternoa";
-import { CHAIN_WSS, IPFS_API_KEY, IPFS_URL } from "@/lib/constants";
+import { IPFS_API_KEY, IPFS_URL } from "@/lib/constants";
 import { useWalletContext } from "@/contexts/walletContext";
 import {
   Select,
@@ -39,7 +38,7 @@ import {
 } from "@/components/ui/select";
 import Connection from "../../Modals/Connection";
 import { Textarea } from "@/components/ui/textarea";
-import { getExplorerLink, mintNFT } from "@/lib/ternoa";
+import { getExplorerLink, initNetwork, mintNFT } from "@/lib/ternoa";
 import {
   Dialog,
   DialogContent,
@@ -50,9 +49,11 @@ import {
 } from "@/components/ui/dialog";
 import { middleEllipsis } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNetworkContext } from "@/contexts/networkContext";
 
 export default function BasicNftForm() {
   const { userWallet } = useWalletContext();
+  const { wss } = useNetworkContext();
   const [nftFile, setNftFile] = useState<File | undefined>(undefined);
   const [error, setError] = useState<string | undefined>(undefined);
   const [isNftLoading, setIsNftLoading] = useState<boolean>(false);
@@ -113,7 +114,7 @@ export default function BasicNftForm() {
       : undefined;
     if (!isApiConnected()) {
       console.log("Ternoa API new initialization");
-      await initializeApi(CHAIN_WSS);
+      await initNetwork(wss)
     }
 
     setNftLoadingState(
@@ -382,7 +383,7 @@ export default function BasicNftForm() {
                   </DialogHeader>
                   <div className="pb-6 text-sm space-y-4 mx-3">
                     <div className="">
-                    <div className="font-bold me-0.5 text-black my-1">
+                      <div className="font-bold me-0.5 text-black my-1">
                         Congratulation
                       </div>
                       NFT id
