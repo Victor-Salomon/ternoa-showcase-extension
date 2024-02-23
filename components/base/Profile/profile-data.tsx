@@ -1,9 +1,14 @@
+"use client";
+
 import TernoaIcon from "@/assets/providers/Ternoa";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
 import { BookMarked, FileJson, Link } from "lucide-react";
+import { useWalletContext } from "@/contexts/walletContext";
 
 export default function ProfileData() {
-  return (
+  const { userWallet } = useWalletContext();
+  const { isConnected } = userWallet;
+  return isConnected ? (
     <div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -58,5 +63,5 @@ export default function ProfileData() {
         </Card>
       </div>
     </div>
-  );
+  ) : null;
 }

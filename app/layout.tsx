@@ -11,7 +11,7 @@ import { NetworkContextProvider } from "@/contexts/networkContext";
 import { Toaster } from "@/components/ui/toaster";
 import Footer from "@/components/base/Footer";
 import { cn } from "@/lib/utils";
-import ProfileData from "@/components/base/profile-data";
+import ProfileData from "@/components/base/Profile/profile-data";
 
 const inter = Inter({ subsets: ["latin"] });
 
