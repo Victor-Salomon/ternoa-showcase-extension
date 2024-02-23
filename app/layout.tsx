@@ -11,6 +11,7 @@ import { NetworkContextProvider } from "@/contexts/networkContext";
 import { Toaster } from "@/components/ui/toaster";
 import Footer from "@/components/base/Footer";
 import { cn } from "@/lib/utils";
+import ProfileData from "@/components/base/profile-data";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -61,6 +62,7 @@ export default function RootLayout({
                   </p>
                 </div>
                 <Network />
+                <ProfileData />
                 <Separator className="my-6" />
                 <div className="text-center bg-muted px-4 py-10 rounded-md md:hidden">
                   <h3 className="text-2xl font-bold mb-4 ">
