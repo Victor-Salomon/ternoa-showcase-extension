@@ -119,8 +119,7 @@ export const mintNFT = async (
     const nftEvent = events.findEventOrThrow(NFTCreatedEvent)
     return { nftEvent, blockInfo };
   } catch (error) {
-    const errorDescription = `NFT_MINT_ERROR: ${error instanceof Error ? error.message : JSON.stringify(error)
-      }`;
+    const errorDescription = `NFT_MINT_ERROR: ${error instanceof Error ? error.message : JSON.stringify(error)}`;
     throw new Error(errorDescription)
   }
 };
