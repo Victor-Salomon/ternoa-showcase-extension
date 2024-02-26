@@ -117,10 +117,6 @@ const Connection = () => {
             ) : userWallet.isConnected ? (
               <>
                 <DialogTitle>Connected account:</DialogTitle>
-                {/* <DialogDescription>
-                  Select another account from the following list to update your
-                  login.
-                </DialogDescription> */}
               </>
             ) : (
               <>
@@ -133,19 +129,17 @@ const Connection = () => {
             )}
           </DialogHeader>
           {userWallet.isConnected && (
-            <DialogDescription>
-              <span className="flex items-center">
-                <Identicon
-                  value={userWallet.address}
-                  size={24}
-                  theme="polkadot"
-                  className="pe-1"
-                />
-                <span className="from-purple-600 via-pink-600 to-blue-600 bg-gradient-to-r bg-clip-text text-transparent">
-                  {middleEllipsis(userWallet.address, 20)}
-                </span>
+            <div className="flex items-center text-sm ">
+              <Identicon
+                value={userWallet.address}
+                size={24}
+                theme="polkadot"
+                className="pe-1"
+              />
+              <span className="from-purple-600 via-pink-600 to-blue-600 bg-gradient-to-r bg-clip-text text-transparent">
+                {middleEllipsis(userWallet.address, 20)}
               </span>
-            </DialogDescription>
+            </div>
           )}
           {error ? (
             <div className="flex flex-col justify-center items-center mt-4 rounded-md bg-gradient-to-r from-pink-900 via-fuchsia-900 to-red-900 py-4">
