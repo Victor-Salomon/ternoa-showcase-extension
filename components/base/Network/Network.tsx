@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useNetworkContext } from "@/contexts/networkContext";
-import { NetworkType } from "@/contexts/types";
+import { NetworkType } from "@/lib/definitions";
 
 const Network = () => {
   const { network, setNetwork, wss } = useNetworkContext();

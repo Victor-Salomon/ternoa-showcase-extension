@@ -4,7 +4,7 @@ import {
   ContextProviderProps,
   WalletContextType,
   UserWalletType,
-} from "./types";
+} from "../lib/definitions";
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
