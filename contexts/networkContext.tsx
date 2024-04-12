@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
-import { ContextProviderProps, NetworkContextType, NetworkType } from "./types";
-import { getApiEndpoint, initializeApi } from "ternoa-js";
+import { ContextProviderProps, NetworkContextType, NetworkType } from "../lib/definitions";
+import { getApiEndpoint } from "ternoa-js";
 import { initNetwork } from "@/lib/ternoa";
 
 const NetworkContext = createContext<NetworkContextType | null>(null);

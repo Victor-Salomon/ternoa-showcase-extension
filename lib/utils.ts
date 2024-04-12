@@ -11,3 +11,7 @@ export function middleEllipsis(s: string, n = 10): string {
   const end = s.slice(-(n / 2));
   return start + "..." + end;
 }
+
+export function formatBalance(balance: string) {
+  return Number(balance.split(" ")[0]).toFixed(2)
+}
