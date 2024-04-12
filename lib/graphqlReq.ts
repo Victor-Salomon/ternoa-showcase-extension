@@ -13,3 +13,25 @@ export const collectionIdQuery = (owner: string) => gql`
   }
 }
 `
+
+export const totalNFTsQuery = (owner: string) => gql`
+{
+  nftEntities(
+    filter: {
+      owner: { equalTo: "${owner}" }
+    }
+  ) {
+    totalCount
+  }
+}
+`
+
+export const lastBlockQuery = () => gql`
+{
+  _metadata {
+    lastProcessedHeight
+    indexerHealthy
+  }
+}
+`
+
