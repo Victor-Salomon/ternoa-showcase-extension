@@ -30,6 +30,10 @@ const sidebarNavItems = [
     title: "Secret NFT",
     href: "/secret",
   },
+  {
+    title: "Capsule NFT",
+    href: "/capsule",
+  },
 ];
 
 export default function RootLayout({

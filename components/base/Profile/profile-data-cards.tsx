@@ -164,28 +164,46 @@ const IndexerCard = ({
   isLoading?: boolean;
   error?: Error | null;
 }) => {
-  return (
+  return isLoading ? (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Skeleton className="h-6 w-2/3" />
+        <Skeleton className="h-6 w-6 rounded-full" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-6 w-1/2 my-2" />
+        <Skeleton className="h-3 w-1/2 my-2" />
+      </CardContent>
+    </Card>
+  ) : (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="flex items-center space-x-1 text-sm font-medium">
           <span>Indexer last block </span>
-          <span
-            className={cn(
-              "text-xs",
-              blocksData?.indexerHealthy ? "text-green-500" : "text-red-500"
-            )}
-          >
-            {blocksData?.indexerHealthy ? "Healthy" : "Broken"}
-          </span>
+          {!error && (
+            <span
+              className={cn(
+                "text-xs",
+                blocksData?.indexerHealthy ? "text-green-500" : "text-red-500"
+              )}
+            >
+              {blocksData?.indexerHealthy ? "Healthy" : "Broken"}
+            </span>
+          )}
         </CardTitle>
         <Link className="w-5 h-5" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {blocksData?.lastProcessedHeight}
+          {blocksData?.lastProcessedHeight && !error
+            ? blocksData?.lastProcessedHeight
+            : "-"}
         </div>
         <p className="text-xs text-muted-foreground">
-          Last block from chain : {blocksData?.chainLastBlock}
+          Last block from chain :{" "}
+          {blocksData?.lastProcessedHeight && !error
+            ? blocksData?.lastProcessedHeight
+            : "-"}
         </p>
       </CardContent>
     </Card>
