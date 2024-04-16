@@ -11,7 +11,7 @@ export default function Secret() {
             Associate private-content to an NFT that only the owner can access.
           </p>
           <p className="text-sm text-muted-foreground italic">
-            The secret consists of a media that is encrypted using generated PGP
+            The private-content consists of a media that is encrypted using generated PGP
             keys. After encrypting the media, the PGP private key is split into
             shares using Shamir Secret Sharing algorithm. Each share is securely
             stored in an enclave using the TEE technology, where individuals or
